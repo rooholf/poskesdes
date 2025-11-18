@@ -17,7 +17,7 @@ $isAdminPage = (substr($page,0,6) === 'admin_');
 if ($isAdminPage && !\App\Services\AuthService::isLoggedIn()) { $error = "Silakan login untuk mengakses halaman admin"; $page = 'home'; }
 $error = null;
 $info = null;
-if ($page === "home" && $_SERVER["REQUEST_METHOD"] !== "POST") { include __DIR__ . "/views/prototype.php"; return; }
+if ($page === "home") { include __DIR__ . "/views/home.php"; return; }
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $csrfValid = \App\Services\CsrfService::validate($_POST['csrf_token'] ?? '');
     if (!$csrfValid) { $error = "Invalid CSRF"; }
