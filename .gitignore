@@ -1,0 +1,17 @@
+.env
+.env.*
+*.env
+vendor/
+node_modules/
+.DS_Store
+.idea/
+.vscode/
+.trae/
+logs/
+storage/
+cache/
+tmp/
+coverage/
+.phpunit.result.cache
+*.log
+public/uploads/
