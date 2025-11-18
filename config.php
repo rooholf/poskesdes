@@ -12,8 +12,11 @@ if (file_exists(__DIR__.'/.env')) {
     }
 }
 function envv($key, $default = '') {
-    $v = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
-    return ($v === false || $v === null || $v === '') ? $default : $v;
+    if (isset($_ENV[$key]) && $_ENV[$key] !== '') { return $_ENV[$key]; }
+    if (isset($_SERVER[$key]) && $_SERVER[$key] !== '') { return $_SERVER[$key]; }
+    $v = getenv($key);
+    if ($v !== false && $v !== '') { return $v; }
+    return $default;
 }
 $DB_HOST = envv('POSY_DB_HOST', 'localhost');
 $DB_NAME = envv('POSY_DB_NAME', '');
