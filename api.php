@@ -1,6 +1,6 @@
 <?php
 if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
-require __DIR__ . "/src/Autoloader.php";
+require_once __DIR__ . "/src/Autoloader.php";
 \App\Autoloader::register();
 if (!isset($pdo)) { require __DIR__ . "/db.php"; }
 if (!function_exists('ensureSchema')) { require __DIR__ . "/schema.php"; }

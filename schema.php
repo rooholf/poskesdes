@@ -10,9 +10,24 @@ function ensureSchema($pdo) {
     $pdo->exec("CREATE TABLE IF NOT EXISTS kb_records (id INT AUTO_INCREMENT PRIMARY KEY, patient_id INT NULL, patient_name VARCHAR(160) NULL, tanggal DATE NOT NULL, data JSON NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
     $pdo->exec("CREATE TABLE IF NOT EXISTS lansia_records (id INT AUTO_INCREMENT PRIMARY KEY, patient_id INT NULL, patient_name VARCHAR(160) NULL, tanggal DATE NOT NULL, data JSON NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
     $pdo->exec("CREATE TABLE IF NOT EXISTS field_notes (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT NOT NULL, note TEXT NOT NULL, for_date DATE NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-    try { $pdo->exec("ALTER TABLE schedules ADD COLUMN subject VARCHAR(160) NULL"); } catch (Throwable $e) {}
-    try { $pdo->exec("ALTER TABLE schedules ADD COLUMN contact_method VARCHAR(32) NULL"); } catch (Throwable $e) {}
-    try { $pdo->exec("ALTER TABLE schedules ADD COLUMN status VARCHAR(16) NULL"); } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['schedules','subject']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE schedules ADD COLUMN subject VARCHAR(160) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['schedules','contact_method']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE schedules ADD COLUMN contact_method VARCHAR(32) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['schedules','status']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE schedules ADD COLUMN status VARCHAR(16) NULL"); }
+    } catch (Throwable $e) {}
 }
 function ensureSeed($pdo) {
     $c = (int)$pdo->query("SELECT COUNT(*) FROM patients")->fetchColumn();
