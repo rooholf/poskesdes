@@ -182,6 +182,8 @@ function titleFor($page) {
 .option-card{ border:1px solid #e5e7eb; border-radius:10px; padding:10px; background:#fff }
 .pill{ background:#f3f4f6; border-radius:10px; padding:6px 8px }
 .mint{ background:var(--mint,#F0FDFB) }
+.skeleton .skeleton-line{ height:12px; background:linear-gradient(90deg,#f3f4f6,#e5e7eb,#f3f4f6); background-size:200% 100%; animation:skeleton 1.2s ease-in-out infinite; border-radius:8px; margin:8px 0 }
+@keyframes skeleton{ 0%{ background-position:200% 0 } 100%{ background-position:-200% 0 } }
 @media(max-width:768px){ .admin-layout{ flex-direction:column } .admin-sidebar{ flex:1 } .stepper{ flex-wrap:wrap } }
 @media(max-width:768px){ .admin-layout{ flex-direction:column } .admin-sidebar{ flex:1 } }
 </style>
@@ -213,6 +215,29 @@ function titleFor($page) {
   $controller->render($page);
   ?>
 </main>
+<script>
+try{
+var IS_ADMIN = <?php echo (substr($page,0,6)==='admin_'?'true':'false'); ?>;
+if(IS_ADMIN){
+  var adminCache = {};
+  function extractContent(html){ try{ var doc=(new DOMParser()).parseFromString(html,'text/html'); var cont=doc.querySelector('.admin-content'); var scripts=Array.from(cont?cont.querySelectorAll('script'):[]).map(function(s){ return s.textContent||''; }); return {inner:(cont?cont.innerHTML:''), scripts:scripts}; }catch(e){ return {inner:'',scripts:[]}; } }
+  function runScripts(codes){ codes.forEach(function(code){ if(!code) return; try{ var s=document.createElement('script'); s.type='text/javascript'; s.text=code; (document.body||document.head).appendChild(s); s.parentNode.removeChild(s); }catch(e){} }); }
+  function showLoading(){ var c=document.querySelector('.admin-content'); if(c){ c.innerHTML='<div class="admin-card skeleton"><div class="skeleton-line" style="width:60%"></div><div class="skeleton-line" style="width:80%"></div><div class="skeleton-line" style="width:40%"></div></div>'; } }
+  var apiCache = {};
+  function apiGetCached(query){ var now=Date.now(); var it=apiCache[query]; if(it && (now - it.ts) < 30000){ return Promise.resolve(it.data); } return fetch('api.php?'+query).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ if(d){ apiCache[query] = { ts:Date.now(), data:d }; } return d; }); }
+  function fmt(t){ try{ var d=new Date(t); return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}); }catch(e){ return t; } }
+  function hydrateIfDashboard(){ var elP=document.getElementById('adm-stat-pendaftar'); var elK=document.getElementById('adm-stat-kunjungan'); var elA=document.getElementById('adm-stat-agenda'); var wrap=document.getElementById('adm-agenda'); var art=document.getElementById('adm-articles'); if(elP||elK||elA){ apiGetCached('action=summary').then(function(s){ if(!s) return; if(elP) elP.textContent=s.pendaftar; if(elK) elK.textContent=(Number(s.anc||0)+Number(s.kb||0)+Number(s.lansia||0)); if(elA) elA.textContent=s.jadwal_aktif; }); } if(wrap){ apiGetCached('action=schedules_list').then(function(data){ if(!data||data.length===0){ wrap.innerHTML='<div class="muted" style="padding:10px;text-align:center;">Belum ada agenda terdekat.</div>'; return; } var now=new Date(); var withDt=(Array.isArray(data)?data:[]).map(function(d){ var raw=String(d.time||''); var t=(raw&&raw.length===5? raw+':00' : (raw?raw:'23:59:59')); var dt=new Date((d.date||'')+'T'+t); return Object.assign({},d,{__dt:dt}); }); var upcoming=withDt.filter(function(d){ return d.__dt>=now; }).sort(function(a,b){ return a.__dt-b.__dt; }).slice(0,3); if(upcoming.length===0){ wrap.innerHTML='<div class="muted" style="padding:10px;text-align:center;">Belum ada agenda terdekat.</div>'; return; } wrap.innerHTML=upcoming.map(function(d){ return '<div class="item"><div><div style="font-weight:700">'+(d.subject||d.service_type)+' — '+(d.time||'')+'</div><div class="muted">'+fmt(d.date)+' — '+(d.notes||'')+'</div></div></div>'; }).join(''); }); } if(art){ apiGetCached('action=articles_latest').then(function(rows){ if(!rows||rows.length===0){ art.innerHTML='<div class="text-muted">Belum ada artikel</div>'; return; } art.innerHTML=rows.map(function(r){ return '<div style="padding:8px;border:1px solid #eee;border-radius:8px;margin-bottom:8px"><div class="d-flex justify-content-between"><div class="fw-bold">'+r.title+'</div><span class="badge text-bg-light">'+(r.category||'Tanpa Kategori')+'</span></div><div class="text-muted mt-1">'+r.snip+'...</div><div class="mt-1"><a class="btn btn-outline-secondary btn-sm" href="/article?id='+r.id+'">Baca</a></div></div>'; }).join(''); }); } }
+  function loadAdmin(path, push){ showLoading(); function apply(obj){ var c=document.querySelector('.admin-content'); if(!c||!obj) return; c.innerHTML=obj.inner; runScripts(obj.scripts||[]); hydrateIfDashboard(); document.querySelectorAll('.admin-sidebar a').forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')===path); }); if(push){ try{ history.pushState({path:path},'', path); }catch(e){} } }
+    if(adminCache[path]){ apply(adminCache[path]); return; }
+    fetch(path,{headers:{'X-Requested-With':'fetch'}}).then(function(r){ return r.text(); }).then(function(t){ var obj=extractContent(t); adminCache[path]=obj; apply(obj); }).catch(function(){ location.href=path; });
+  }
+  document.querySelectorAll('.admin-sidebar a').forEach(function(a){ a.addEventListener('click', function(e){ var href=a.getAttribute('href'); if(href&&href.indexOf('/admin')===0){ e.preventDefault(); loadAdmin(href, true); } }); });
+  var ac=document.querySelector('.admin-content'); if(ac && ac.children && ac.children.length===0){ loadAdmin(location.pathname, false); } else { hydrateIfDashboard(); }
+  window.addEventListener('popstate', function(){ var p=location.pathname; if(p.indexOf('/admin')===0){ loadAdmin(p, false); } });
+  ['\/admin\/schedules','\/admin\/visits','\/admin\/articles','\/admin\/reports'].forEach(function(p){ fetch(p,{headers:{'X-Requested-With':'prefetch'}}).then(function(r){ return r.text(); }).then(function(t){ adminCache[p]=extractContent(t); }).catch(function(){}); });
+}
+}catch(e){}
+</script>
   <?php if (substr($page,0,6) !== 'admin_') { ?>
   <nav class="bottom-nav d-md-none<?php echo (\App\Services\AuthService::isLoggedIn() ? ' logged-in' : ''); ?>">
     <a href="/home">Beranda</a>

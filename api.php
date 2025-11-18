@@ -6,7 +6,11 @@ if (!isset($pdo)) { require __DIR__ . "/db.php"; }
 if (!function_exists('ensureSchema')) { require __DIR__ . "/schema.php"; }
 header('Content-Type: application/json');
 if (!$pdo) { http_response_code(500); echo json_encode(['error'=>'db_unavailable']); exit; }
-if (function_exists('ensureSchema')) { try { ensureSchema($pdo); } catch (Throwable $e) {} }
+if (function_exists('ensureSchema')) {
+    if (empty($_SESSION['__schema_ok'])) {
+        try { ensureSchema($pdo); $_SESSION['__schema_ok'] = time(); } catch (Throwable $e) {}
+    }
+}
 $action = $_GET['action'] ?? '';
 if ($action === 'patients_list') {
     $rows = $pdo->query("SELECT id,name,address,phone FROM patients ORDER BY name ASC")->fetchAll();
@@ -22,6 +26,10 @@ if ($action === 'patients_add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 if ($action === 'schedules_list') {
     $rows = $pdo->query("SELECT id,subject,date,service_type,time,contact_method,notes FROM schedules ORDER BY date ASC")->fetchAll();
+    echo json_encode($rows); exit;
+}
+if ($action === 'articles_latest') {
+    $rows = $pdo->query("SELECT id,title,COALESCE(category,'Tanpa Kategori') AS category,SUBSTRING(body,1,100) AS snip,created_at FROM articles ORDER BY created_at DESC LIMIT 3")->fetchAll();
     echo json_encode($rows); exit;
 }
 if ($action === 'schedules_add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
