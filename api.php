@@ -6,6 +6,7 @@ if (!isset($pdo)) { require __DIR__ . "/db.php"; }
 if (!function_exists('ensureSchema')) { require __DIR__ . "/schema.php"; }
 header('Content-Type: application/json');
 if (!$pdo) { http_response_code(500); echo json_encode(['error'=>'db_unavailable']); exit; }
+if (function_exists('ensureSchema')) { try { ensureSchema($pdo); } catch (Throwable $e) {} }
 $action = $_GET['action'] ?? '';
 if ($action === 'patients_list') {
     $rows = $pdo->query("SELECT id,name,address,phone FROM patients ORDER BY name ASC")->fetchAll();
@@ -55,37 +56,86 @@ if ($action === 'schedules_delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode(['ok'=>true]); exit;
 }
 if ($action === 'anc_add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!\App\Services\AuthService::isLoggedIn()) { http_response_code(403); echo json_encode(['error'=>'unauthorized']); exit; }
     $patient_id = $_POST['patient_id'] ?? null;
-    $patient_name = $_POST['patient_name'] ?? '';
-    $data = $_POST['data_json'] ?? '{}';
-    $tanggal = $_POST['tanggal'] ?? date('Y-m-d');
-    $pdo->prepare("INSERT INTO anc_records(patient_id,patient_name,tanggal,data) VALUES(?,?,?,CAST(? AS JSON))")
-        ->execute([$patient_id ?: null, $patient_name, $tanggal, $data]);
-    $jk = $_POST['jadwal_kontrol'] ?? '';
+    $patient_name = trim($_POST['patient_name'] ?? '');
+    $tanggal = trim($_POST['tanggal'] ?? date('Y-m-d'));
+    $jk = trim($_POST['jadwal_kontrol'] ?? '');
+    $anc_kunjungan_ke = ($_POST['anc_kunjungan_ke'] ?? '') !== '' ? (int)$_POST['anc_kunjungan_ke'] : null;
+    $anc_k_status = ($t = trim($_POST['anc_k_status'] ?? '')) !== '' ? $t : null;
+    $anc_usg_status = ($t = trim($_POST['anc_usg_status'] ?? '')) !== '' ? $t : null;
+    $anc_4t_status = ($t = trim($_POST['anc_4t_status'] ?? '')) !== '' ? $t : null;
+    $gravida = ($_POST['gravida'] ?? '') !== '' ? (int)$_POST['gravida'] : null;
+    $para = ($_POST['para'] ?? '') !== '' ? (int)$_POST['para'] : null;
+    $abortus = ($_POST['abortus'] ?? '') !== '' ? (int)$_POST['abortus'] : null;
+    $hpht = ($t = trim($_POST['hpht'] ?? '')) !== '' ? $t : null;
+    $hpl = ($t = trim($_POST['hpl'] ?? '')) !== '' ? $t : null;
+    $keluhan_utama = ($t = trim($_POST['keluhan_utama'] ?? '')) !== '' ? $t : null;
+    $td = ($t = trim($_POST['td'] ?? '')) !== '' ? $t : null;
+    $nadi = ($_POST['nadi'] ?? '') !== '' ? (int)$_POST['nadi'] : null;
+    $suhu = ($_POST['suhu'] ?? '') !== '' ? (float)$_POST['suhu'] : null;
+    $bb = ($_POST['bb'] ?? '') !== '' ? (float)$_POST['bb'] : null;
+    $tb = ($_POST['tb'] ?? '') !== '' ? (int)$_POST['tb'] : null;
+    $edema = ($t = trim($_POST['edema'] ?? '')) !== '' ? $t : null;
+    $djj = ($_POST['djj'] ?? '') !== '' ? (int)$_POST['djj'] : null;
+    $tfu = ($_POST['tfu'] ?? '') !== '' ? (float)$_POST['tfu'] : null;
+    $posisi_janin = ($t = trim($_POST['posisi_janin'] ?? '')) !== '' ? $t : null;
+    $gerak_janin = ($t = trim($_POST['gerak_janin'] ?? '')) !== '' ? $t : null;
+    $fe_diberikan = ($_POST['fe_diberikan'] ?? '') !== '' ? (int)$_POST['fe_diberikan'] : null;
+    $saran_gizi = ($t = trim($_POST['saran_gizi'] ?? '')) !== '' ? $t : null;
+    $hb = ($_POST['hb'] ?? '') !== '' ? (float)$_POST['hb'] : null;
+    $urin = ($t = trim($_POST['urin'] ?? '')) !== '' ? $t : null;
+    $penunjang_lain = ($t = trim($_POST['penunjang_lain'] ?? '')) !== '' ? $t : null;
+    $faktor_risiko = ($t = trim($_POST['faktor_risiko'] ?? '')) !== '' ? $t : null;
+    $klasifikasi_risiko = ($t = trim($_POST['klasifikasi_risiko'] ?? '')) !== '' ? $t : null;
+    $perlu_rujukan = ($t = trim($_POST['perlu_rujukan'] ?? '')) !== '' ? $t : null;
+    $tujuan_rujukan = ($t = trim($_POST['tujuan_rujukan'] ?? '')) !== '' ? $t : null;
+    $alasan_rujukan = ($t = trim($_POST['alasan_rujukan'] ?? '')) !== '' ? $t : null;
+    $tatalaksana_awal = ($t = trim($_POST['tatalaksana_awal'] ?? '')) !== '' ? $t : null;
+    $ringkasan_kunjungan = ($t = trim($_POST['ringkasan_kunjungan'] ?? '')) !== '' ? $t : null;
+    $jadwal_kontrol_berikut = $jk !== '' ? $jk : null;
+    $stmt = $pdo->prepare("INSERT INTO anc_records(patient_id,patient_name,tanggal,anc_kunjungan_ke,anc_k_status,anc_usg_status,anc_4t_status,gravida,para,abortus,hpht,hpl,keluhan_utama,td,nadi,suhu,bb,tb,edema,djj,tfu,posisi_janin,gerak_janin,fe_diberikan,saran_gizi,hb,urin,penunjang_lain,faktor_risiko,klasifikasi_risiko,perlu_rujukan,tujuan_rujukan,alasan_rujukan,tatalaksana_awal,ringkasan_kunjungan,jadwal_kontrol_berikut) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+    $stmt->execute([$patient_id ?: null, $patient_name !== '' ? $patient_name : null, $tanggal !== '' ? $tanggal : null, $anc_kunjungan_ke, $anc_k_status, $anc_usg_status, $anc_4t_status, $gravida, $para, $abortus, $hpht, $hpl, $keluhan_utama, $td, $nadi, $suhu, $bb, $tb, $edema, $djj, $tfu, $posisi_janin, $gerak_janin, $fe_diberikan, $saran_gizi, $hb, $urin, $penunjang_lain, $faktor_risiko, $klasifikasi_risiko, $perlu_rujukan, $tujuan_rujukan, $alasan_rujukan, $tatalaksana_awal, $ringkasan_kunjungan, $jadwal_kontrol_berikut]);
     if ($jk !== '') { $pdo->prepare("INSERT INTO schedules(subject,date,service_type,contact_method) VALUES(?,?,?,?)")
         ->execute(["ANC Kontrol: ".$patient_name, $jk, 'ANC Kontrol', 'Poskesdes']); }
     echo json_encode(['ok'=>true]); exit;
 }
 if ($action === 'kb_add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!\App\Services\AuthService::isLoggedIn()) { http_response_code(403); echo json_encode(['error'=>'unauthorized']); exit; }
     $patient_id = $_POST['patient_id'] ?? null;
-    $patient_name = $_POST['patient_name'] ?? '';
-    $data = $_POST['data_json'] ?? '{}';
-    $tanggal = $_POST['tanggal'] ?? date('Y-m-d');
-    $pdo->prepare("INSERT INTO kb_records(patient_id,patient_name,tanggal,data) VALUES(?,?,?,CAST(? AS JSON))")
-        ->execute([$patient_id ?: null, $patient_name, $tanggal, $data]);
-    $jk = $_POST['jadwal_kontrol'] ?? '';
+    $patient_name = trim($_POST['patient_name'] ?? '');
+    $tanggal = trim($_POST['tanggal'] ?? date('Y-m-d'));
+    $jk = trim($_POST['jadwal_kontrol'] ?? '');
+    $kb_status_peserta = ($t = trim($_POST['kb_status_peserta'] ?? '')) !== '' ? $t : null;
+    $metode_kb = ($t = trim($_POST['metode_kb'] ?? '')) !== '' ? $t : null;
+    $tgl_mulai = ($t = trim($_POST['tgl_mulai'] ?? '')) !== '' ? $t : null;
+    $keterangan = ($t = trim($_POST['keterangan'] ?? '')) !== '' ? $t : null;
+    $rencana_tindakan = ($t = trim($_POST['rencana_tindakan'] ?? '')) !== '' ? $t : null;
+    $jadwal_kontrol_kb = $jk !== '' ? $jk : null;
+    $stmt = $pdo->prepare("INSERT INTO kb_records(patient_id,patient_name,tanggal,kb_status_peserta,metode_kb,tgl_mulai,keterangan,rencana_tindakan,jadwal_kontrol_kb) VALUES(?,?,?,?,?,?,?,?,?)");
+    $stmt->execute([$patient_id ?: null, $patient_name !== '' ? $patient_name : null, $tanggal !== '' ? $tanggal : null, $kb_status_peserta, $metode_kb, $tgl_mulai, $keterangan, $rencana_tindakan, $jadwal_kontrol_kb]);
     if ($jk !== '') { $pdo->prepare("INSERT INTO schedules(subject,date,service_type,contact_method) VALUES(?,?,?,?)")
         ->execute(["KB Kontrol: ".$patient_name, $jk, 'KB Kontrol', 'Telepon/WA']); }
     echo json_encode(['ok'=>true]); exit;
 }
 if ($action === 'lansia_add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!\App\Services\AuthService::isLoggedIn()) { http_response_code(403); echo json_encode(['error'=>'unauthorized']); exit; }
     $patient_id = $_POST['patient_id'] ?? null;
-    $patient_name = $_POST['patient_name'] ?? '';
-    $data = $_POST['data_json'] ?? '{}';
-    $tanggal = $_POST['tanggal'] ?? date('Y-m-d');
-    $pdo->prepare("INSERT INTO lansia_records(patient_id,patient_name,tanggal,data) VALUES(?,?,?,CAST(? AS JSON))")
-        ->execute([$patient_id ?: null, $patient_name, $tanggal, $data]);
-    $jk = $_POST['jadwal_kontrol'] ?? '';
+    $patient_name = trim($_POST['patient_name'] ?? '');
+    $tanggal = trim($_POST['tanggal'] ?? date('Y-m-d'));
+    $jk = trim($_POST['jadwal_kontrol'] ?? '');
+    $keluhan_lansia = ($t = trim($_POST['keluhan_lansia'] ?? '')) !== '' ? $t : null;
+    $diagnosa_lansia = ($t = trim($_POST['diagnosa_lansia'] ?? '')) !== '' ? $t : null;
+    $bb_lansia = ($_POST['bb_lansia'] ?? '') !== '' ? (float)$_POST['bb_lansia'] : null;
+    $tb_lansia = ($_POST['tb_lansia'] ?? '') !== '' ? (int)$_POST['tb_lansia'] : null;
+    $td_lansia = ($t = trim($_POST['td_lansia'] ?? '')) !== '' ? $t : null;
+    $gds = ($_POST['gds'] ?? '') !== '' ? (int)$_POST['gds'] : null;
+    $asam_urat = ($_POST['asam_urat'] ?? '') !== '' ? (float)$_POST['asam_urat'] : null;
+    $kolesterol = ($_POST['kolesterol'] ?? '') !== '' ? (int)$_POST['kolesterol'] : null;
+    $tindakan_lansia = ($t = trim($_POST['tindakan_lansia'] ?? '')) !== '' ? $t : null;
+    $jadwal_kontrol_lansia = $jk !== '' ? $jk : null;
+    $stmt = $pdo->prepare("INSERT INTO lansia_records(patient_id,patient_name,tanggal,keluhan_lansia,diagnosa_lansia,bb_lansia,tb_lansia,td_lansia,gds,asam_urat,kolesterol,tindakan_lansia,jadwal_kontrol_lansia) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
+    $stmt->execute([$patient_id ?: null, $patient_name !== '' ? $patient_name : null, $tanggal !== '' ? $tanggal : null, $keluhan_lansia, $diagnosa_lansia, $bb_lansia, $tb_lansia, $td_lansia, $gds, $asam_urat, $kolesterol, $tindakan_lansia, $jadwal_kontrol_lansia]);
     if ($jk !== '') { $pdo->prepare("INSERT INTO schedules(subject,date,service_type,contact_method) VALUES(?,?,?,?)")
         ->execute(["Kontrol Lansia: ".$patient_name, $jk, 'Lansia Kontrol', 'Telepon/WA']); }
     echo json_encode(['ok'=>true]); exit;

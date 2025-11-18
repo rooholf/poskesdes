@@ -17,7 +17,8 @@ $isAdminPage = (substr($page,0,6) === 'admin_');
 if ($isAdminPage && !\App\Services\AuthService::isLoggedIn()) { $error = "Silakan login untuk mengakses halaman admin"; $page = 'home'; }
 $error = null;
 $info = null;
-if ($page === "home") { include __DIR__ . "/views/home.php"; return; }
+$error_target = null;
+if ($page === "home" && $_SERVER["REQUEST_METHOD"] !== "POST") { include __DIR__ . "/views/home.php"; return; }
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $csrfValid = \App\Services\CsrfService::validate($_POST['csrf_token'] ?? '');
     if (!$csrfValid) { $error = "Invalid CSRF"; }
@@ -28,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if (!$pdo) { $error = "Database is not configured"; }
         else {
             $auth = new \App\Services\AuthService();
-            if ($auth->login($pdo, $u, $p)) { header("Location: /admin"); exit; } else { $error = ((int)$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn() === 0 ? 'Belum ada akun admin' : 'Username atau password salah'); }
+            if ($auth->login($pdo, $u, $p)) { header("Location: /admin"); exit; } else { $error = ((int)$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn() === 0 ? 'Belum ada akun admin' : 'Username atau password salah'); $error_target = 'login'; }
         }
     } elseif ($csrfValid && $action === "register_admin") {
         $u = trim($_POST["username"] ?? "");
@@ -123,6 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } else { $error = "Data status tidak valid"; }
     }
 }
+if ($page === "home") { include __DIR__ . "/views/home.php"; return; }
 function titleFor($page) {
     if ($page === "home") return "Beranda";
     if ($page === "schedule") return "Jadwal Layanan";
@@ -156,13 +158,13 @@ function titleFor($page) {
 .bottom-nav a { text-decoration: none; color: #333; font-size: .9rem; }
 .content { padding-bottom: 64px; }
  body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
-.admin-layout{ display:flex; gap:16px }
-.admin-sidebar{ flex:0 0 250px; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:14px }
+.admin-layout{ display:flex; gap:12px; min-height: calc(100vh - 180px) }
+.admin-sidebar{ flex:0 0 250px; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:10px }
 .admin-sidebar .group{ font-size:.8rem; color:#6b7280; margin:8px 0 6px }
-.admin-sidebar a{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; text-decoration:none; color:#374151 }
+.admin-sidebar a{ display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; text-decoration:none; color:#374151 }
 .admin-sidebar a.active{ background:var(--mint,#F0FDFB); border:1px solid #d1fae5; color:#0f766e }
-.admin-content{ flex:1 }
-.admin-card{ background:#fff; border-radius:12px; border:1px solid #e5e7eb; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,.04) }
+.admin-content{ flex:1; display:flex; flex-direction:column; min-height: 48vh }
+.admin-card{ background:#fff; border-radius:12px; border:1px solid #e5e7eb; padding:10px; box-shadow:0 1px 2px rgba(0,0,0,.04); min-height: 140px }
 .badge-status{ display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px }
 .status-teal{ background:#d1fae5; color:#0f766e }
 .status-yellow{ background:#fef3c7; color:#92400e }
@@ -176,9 +178,9 @@ function titleFor($page) {
 .stepper{ display:flex; gap:18px; align-items:center; border:1px solid #e5e7eb; border-radius:12px; padding:10px 14px; background:#fff }
 .step{ display:flex; align-items:center; gap:8px; color:#374151; font-size:.9rem }
 .dot{ width:18px; height:18px; border-radius:50%; background:#dcfce7; border:2px solid #86efac }
-.card-shell{ background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.04) }
-.option-card{ border:1px solid #e5e7eb; border-radius:10px; padding:12px; background:#fff }
-.pill{ background:#f3f4f6; border-radius:10px; padding:8px 10px }
+.card-shell{ background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,.04) }
+.option-card{ border:1px solid #e5e7eb; border-radius:10px; padding:10px; background:#fff }
+.pill{ background:#f3f4f6; border-radius:10px; padding:6px 8px }
 .mint{ background:var(--mint,#F0FDFB) }
 @media(max-width:768px){ .admin-layout{ flex-direction:column } .admin-sidebar{ flex:1 } .stepper{ flex-wrap:wrap } }
 @media(max-width:768px){ .admin-layout{ flex-direction:column } .admin-sidebar{ flex:1 } }
@@ -235,6 +237,7 @@ function titleFor($page) {
 <div id="login-modal" class="modal" aria-hidden="true">
   <div class="panel">
     <div class="d-flex justify-content-between align-items-center mb-2"><div class="fw-bold">Masuk</div><button class="btn btn-sm btn-outline-secondary" id="login-close">Tutup</button></div>
+    <?php if (($error ?? null) && (($error_target ?? null) === 'login')) { echo '<div class="alert alert-danger mb-2">'.htmlspecialchars($error).'</div>'; } ?>
     <form method="post" class="vstack gap-2">
       <input type="hidden" name="action" value="login">
       <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(\App\Services\CsrfService::token()); ?>">
@@ -246,6 +249,10 @@ function titleFor($page) {
 </div>
 <script>
 document.addEventListener('DOMContentLoaded',function(){ var top=document.getElementById('open-login'); var bottom=document.getElementById('open-login-bottom'); var modal=document.getElementById('login-modal'); var close=document.getElementById('login-close'); function open(){ if(modal) { modal.classList.add('show'); document.body.classList.add('modal-open'); } } function hide(){ if(modal) { modal.classList.remove('show'); document.body.classList.remove('modal-open'); } } if(top) top.addEventListener('click',function(e){ e.preventDefault(); open(); }); if(bottom) bottom.addEventListener('click',function(e){ e.preventDefault(); open(); }); if(close) close.addEventListener('click',function(e){ e.preventDefault(); hide(); }); });
+</script>
+<script>
+var LOGIN_ERROR = <?php echo (($error ?? null) && (($error_target ?? null) === 'login')) ? 'true' : 'false'; ?>;
+document.addEventListener('DOMContentLoaded', function(){ if (LOGIN_ERROR) { var modal=document.getElementById('login-modal'); if(modal){ modal.classList.add('show'); document.body.classList.add('modal-open'); } } });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

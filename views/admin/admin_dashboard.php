@@ -8,65 +8,37 @@
     <a href="/admin/schedules" class="<?php echo ($page==='admin_schedules'?'active':''); ?>">Jadwal & Pengingat</a>
     <a href="/admin/articles" class="<?php echo ($page==='admin_articles'?'active':''); ?>">Artikel</a>
     <a href="/admin/reports" class="<?php echo ($page==='admin_reports'?'active':''); ?>">Laporan</a>
-    <div class="group">Other</div>
-    <a href="#">Pengaturan</a>
-    <a href="#">Integrasi</a>
-    <a href="#">Bantuan</a>
   </aside>
   <section class="admin-content">
-    <div class="text-muted mb-2">← Kembali</div>
-    <div class="stepper mb-2">
-      <div class="step"><span class="dot"></span><span>Mulai</span></div>
-      <div class="step"><span class="dot"></span><span>Jenis</span></div>
-      <div class="step"><span class="dot"></span><span>Tambah</span></div>
-      <div class="step"><span class="dot"></span><span>Konfirmasi</span></div>
-      <div class="step"><span class="dot"></span><span>Selesai</span></div>
-    </div>
-    <div class="card-shell mb-3">
-      <div class="fw-bold mb-2">Ajukan Jadwal Pemeriksaan</div>
-      <div class="row g-2">
-        <div class="col-12 col-md-6"><div class="option-card"><div class="fw-bold">Mulai dari kosong</div><div class="text-muted" style="font-size:12px">Isi semua informasi jadwal di website</div></div></div>
-        <div class="col-12 col-md-6"><div class="option-card"><div class="fw-bold">Unggah file</div><div class="text-muted" style="font-size:12px">Unggah daftar jadwal, tidak dapat diedit</div></div></div>
-      </div>
-      <div class="mt-3">
-      <div class="d-flex justify-content-between align-items-center mb-2"><div class="fw-bold">Jadwal sebelumnya</div><a href="/admin/schedules" class="text-decoration-none">Lihat semua</a></div>
-        <div class="row g-2">
-          <?php if ($pdo) { $rows=$pdo->query("SELECT subject AS nama FROM schedules ORDER BY id DESC LIMIT 6")->fetchAll(); foreach($rows as $r){ ?>
-            <div class="col-12 col-md-4"><div class="pill"><?php echo htmlspecialchars($r['nama'] ?: 'Jadwal'); ?></div></div>
-          <?php } } else { ?>
-            <div class="col-12"><div class="pill">Contoh Jadwal</div></div>
-          <?php } ?>
-        </div>
-      </div>
-      <div class="d-flex justify-content-end mt-3"><a class="btn btn-dark" href="/admin/schedules">Lanjutkan</a></div>
-    </div>
+    <div class="d-flex justify-content-between align-items-center mb-2"><div class="fw-bold">Ringkasan Halaman Publik</div><a class="btn btn-outline-secondary btn-sm" href="/home" target="_blank">Buka Halaman Publik</a></div>
     <div class="row g-2">
-      <div class="col-12 col-md-6">
-        <div class="admin-card mint">
-          <div class="d-flex justify-content-between align-items-center"><div class="fw-bold">Jadwal Hari Ini</div><a class="btn btn-sm btn-outline-secondary" href="/admin/schedules">Lihat Semua</a></div>
-          <div class="mt-2">
-            <?php if ($pdo) { $stmt=$pdo->prepare("SELECT service_type,time,notes FROM schedules WHERE date=CURDATE() ORDER BY time ASC"); $stmt->execute(); $rows=$stmt->fetchAll(); if(count($rows)===0){ echo '<div class=\"text-muted\">Tidak ada jadwal hari ini</div>'; } foreach($rows as $r){ ?>
-            <div class="d-flex justify-content-between align-items-center" style="padding:6px 0;border-bottom:1px solid #eee"><div><div class="fw-bold"><?php echo htmlspecialchars($r["service_type"] ?? ''); ?></div><div class="text-muted" style="font-size:12px"><?php echo htmlspecialchars($r["notes"] ?? ''); ?></div></div><div><?php echo htmlspecialchars($r["time"] ?? ''); ?></div></div>
-            <?php } } ?>
-          </div>
+      <div class="col-12 col-md-4"><div class="admin-card"><div class="text-muted" style="font-size:12px">Total Pendaftar</div><div id="adm-stat-pendaftar" style="font-weight:700;font-size:22px">—</div></div></div>
+      <div class="col-12 col-md-4"><div class="admin-card"><div class="text-muted" style="font-size:12px">Total Kunjungan</div><div id="adm-stat-kunjungan" style="font-weight:700;font-size:22px">—</div></div></div>
+      <div class="col-12 col-md-4"><div class="admin-card"><div class="text-muted" style="font-size:12px">Agenda Aktif</div><div id="adm-stat-agenda" style="font-weight:700;font-size:22px">—</div></div></div>
+    </div>
+    <div class="row g-2 mt-2">
+      <div class="col-12 col-md-7">
+        <div class="admin-card">
+          <div class="d-flex justify-content-between align-items-center"><div class="fw-bold">Agenda Terdekat</div><a class="btn btn-sm btn-outline-secondary" href="/admin/schedules">Kelola Jadwal</a></div>
+          <div id="adm-agenda" class="agenda mt-2"></div>
         </div>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-md-5">
         <div class="admin-card">
-          <div class="fw-bold">Catatan Lapangan</div>
-          <form method="post" class="vstack gap-2 mt-2">
-            <input type="hidden" name="action" value="add_field_note">
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(\App\Services\CsrfService::token()); ?>">
-            <textarea name="note" class="form-control" placeholder="Tuliskan catatan hari ini"></textarea>
-            <button class="btn btn-primary">Simpan</button>
-          </form>
+          <div class="fw-bold">Artikel Terbaru</div>
           <div class="mt-2">
-            <?php if ($pdo) { $stmt=$pdo->prepare("SELECT note, created_at FROM field_notes WHERE for_date=CURDATE() ORDER BY created_at DESC"); $stmt->execute(); $rows=$stmt->fetchAll(); foreach($rows as $r){ ?>
-              <div style="padding:8px;border:1px solid #eee;border-radius:8px;margin-bottom:8px"><div><?php echo htmlspecialchars($r["note"]); ?></div><div class="text-muted" style="font-size:12px"><?php echo htmlspecialchars($r["created_at"]); ?></div></div>
-            <?php } } ?>
+            <?php if ($pdo) { $rows=$pdo->query("SELECT id,title,category,SUBSTRING(body,1,100) AS snip,created_at FROM articles ORDER BY created_at DESC LIMIT 3")->fetchAll(); if(count($rows)===0){ echo '<div class=\"text-muted\">Belum ada artikel</div>'; } foreach($rows as $r){ echo '<div style=\"padding:8px;border:1px solid #eee;border-radius:8px;margin-bottom:8px\"><div class=\"d-flex justify-content-between\"><div class=\"fw-bold\">'.htmlspecialchars($r['title']).'</div><span class=\"badge text-bg-light\">'.htmlspecialchars($r['category'] ?? 'Tanpa Kategori').'</span></div><div class=\"text-muted mt-1\">'.htmlspecialchars($r['snip']).'...</div><div class=\"mt-1\"><a class=\"btn btn-outline-secondary btn-sm\" href=\"/article?id='.(int)$r['id'].'\">Baca</a></div></div>'; } } else { echo '<div class=\"text-muted\">Database tidak tersedia</div>'; } ?>
           </div>
         </div>
       </div>
     </div>
+    <script>
+    (function(){
+      const API='api.php';
+      function fmt(t){ const d=new Date(t); return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}); }
+      fetch(API+'?action=summary').then(r=>r.ok?r.json():null).then(s=>{ if(!s) return; const elP=document.getElementById('adm-stat-pendaftar'); const elK=document.getElementById('adm-stat-kunjungan'); const elA=document.getElementById('adm-stat-agenda'); if(elP) elP.textContent=s.pendaftar; if(elK) elK.textContent=(Number(s.anc||0)+Number(s.kb||0)+Number(s.lansia||0)); if(elA) elA.textContent=s.jadwal_aktif; });
+      fetch(API+'?action=schedules_list').then(r=>r.ok?r.json():null).then(data=>{ const wrap=document.getElementById('adm-agenda'); if(!wrap) return; if(!data||data.length===0){ wrap.innerHTML='<div class="muted" style="padding:10px;text-align:center;">Belum ada agenda terdekat.</div>'; return; } const now=new Date(); const withDt=(Array.isArray(data)?data:[]).map(d=>{ const raw=String(d.time||'00:00'); const t=(raw.length===5? raw+':00' : (raw||'00:00:00')); const dt=new Date(`${d.date}T${t}`); return Object.assign({},d,{__dt:dt}); }); const upcoming=withDt.filter(d=> d.__dt>=now).sort((a,b)=> a.__dt-b.__dt).slice(0,3); if(upcoming.length===0){ wrap.innerHTML='<div class="muted" style="padding:10px;text-align:center;">Belum ada agenda terdekat.</div>'; return; } wrap.innerHTML=upcoming.map(d=>`<div class="item"><div><div style="font-weight:700">${d.subject||d.service_type} — ${d.time||''}</div><div class="muted">${fmt(d.date)} — ${d.notes||''}</div></div></div>`).join(''); });
+    })();
+    </script>
   </section>
 </div>

@@ -268,6 +268,7 @@
         <button id="login-close" class="small-btn">Tutup</button>
       </div>
       <div style="height:8px"></div>
+      <?php if (($error ?? null) && (($error_target ?? null) === 'login')) { echo '<div style="padding:8px;border:1px solid #e11d48;background:#fee2e2;color:#991b1b;border-radius:8px;margin-bottom:8px">'.htmlspecialchars($error).'</div>'; } ?>
       <form method="post">
         <input type="hidden" name="action" value="login" />
         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(\App\Services\CsrfService::token()); ?>" />
@@ -279,5 +280,6 @@
   </div>
   <script>window.__isLoggedIn = <?php echo (\App\Services\AuthService::isLoggedIn() ? 'true' : 'false'); ?>;</script>
   <?php include __DIR__ . "/home_script.php"; ?>
+  <script>var LOGIN_ERROR=<?php echo (($error ?? null) && (($error_target ?? null)==='login'))?'true':'false'; ?>; document.addEventListener('DOMContentLoaded',function(){ if(LOGIN_ERROR){ var m=document.getElementById('login-modal'); if(m){ m.classList.add('show'); document.body.classList.add('modal-open'); } } });</script>
 </body>
 </html>

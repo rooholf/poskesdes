@@ -12,6 +12,300 @@ function ensureSchema($pdo) {
     $pdo->exec("CREATE TABLE IF NOT EXISTS field_notes (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT NOT NULL, note TEXT NOT NULL, for_date DATE NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
     try {
         $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','anc_kunjungan_ke']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN anc_kunjungan_ke INT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','anc_k_status']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN anc_k_status VARCHAR(16) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','anc_usg_status']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN anc_usg_status VARCHAR(8) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','anc_4t_status']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN anc_4t_status VARCHAR(16) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','gravida']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN gravida INT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','para']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN para INT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','abortus']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN abortus INT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','hpht']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN hpht DATE NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','hpl']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN hpl DATE NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','keluhan_utama']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN keluhan_utama TEXT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','td']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN td VARCHAR(16) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','nadi']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN nadi INT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','suhu']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN suhu DECIMAL(4,1) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','bb']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN bb DECIMAL(6,2) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','tb']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN tb INT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','edema']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN edema VARCHAR(16) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','djj']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN djj INT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','tfu']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN tfu DECIMAL(5,2) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','posisi_janin']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN posisi_janin VARCHAR(16) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','gerak_janin']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN gerak_janin VARCHAR(16) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','fe_diberikan']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN fe_diberikan INT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','saran_gizi']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN saran_gizi TEXT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','hb']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN hb DECIMAL(4,1) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','urin']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN urin VARCHAR(32) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','penunjang_lain']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN penunjang_lain TEXT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','faktor_risiko']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN faktor_risiko TEXT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','klasifikasi_risiko']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN klasifikasi_risiko VARCHAR(16) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','perlu_rujukan']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN perlu_rujukan VARCHAR(16) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','tujuan_rujukan']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN tujuan_rujukan VARCHAR(64) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','alasan_rujukan']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN alasan_rujukan TEXT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','tatalaksana_awal']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN tatalaksana_awal TEXT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','ringkasan_kunjungan']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN ringkasan_kunjungan TEXT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['anc_records','jadwal_kontrol_berikut']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE anc_records ADD COLUMN jadwal_kontrol_berikut DATE NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['kb_records','kb_status_peserta']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE kb_records ADD COLUMN kb_status_peserta VARCHAR(32) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['kb_records','metode_kb']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE kb_records ADD COLUMN metode_kb VARCHAR(32) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['kb_records','tgl_mulai']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE kb_records ADD COLUMN tgl_mulai DATE NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['kb_records','keterangan']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE kb_records ADD COLUMN keterangan TEXT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['kb_records','rencana_tindakan']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE kb_records ADD COLUMN rencana_tindakan VARCHAR(32) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['kb_records','jadwal_kontrol_kb']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE kb_records ADD COLUMN jadwal_kontrol_kb DATE NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['lansia_records','keluhan_lansia']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE lansia_records ADD COLUMN keluhan_lansia TEXT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['lansia_records','diagnosa_lansia']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE lansia_records ADD COLUMN diagnosa_lansia VARCHAR(160) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['lansia_records','bb_lansia']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE lansia_records ADD COLUMN bb_lansia DECIMAL(6,2) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['lansia_records','tb_lansia']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE lansia_records ADD COLUMN tb_lansia INT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['lansia_records','td_lansia']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE lansia_records ADD COLUMN td_lansia VARCHAR(16) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['lansia_records','gds']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE lansia_records ADD COLUMN gds INT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['lansia_records','asam_urat']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE lansia_records ADD COLUMN asam_urat DECIMAL(4,1) NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['lansia_records','kolesterol']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE lansia_records ADD COLUMN kolesterol INT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['lansia_records','tindakan_lansia']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE lansia_records ADD COLUMN tindakan_lansia TEXT NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $q->execute(['lansia_records','jadwal_kontrol_lansia']);
+        $cx = (int)$q->fetchColumn();
+        if ($cx === 0) { $pdo->exec("ALTER TABLE lansia_records ADD COLUMN jadwal_kontrol_lansia DATE NULL"); }
+    } catch (Throwable $e) {}
+    try {
+        $q = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
         $q->execute(['schedules','subject']);
         $cx = (int)$q->fetchColumn();
         if ($cx === 0) { $pdo->exec("ALTER TABLE schedules ADD COLUMN subject VARCHAR(160) NULL"); }
