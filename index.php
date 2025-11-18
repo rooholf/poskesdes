@@ -14,7 +14,7 @@ $uri = $_SERVER["REQUEST_URI"] ?? "/";
 if (strpos($uri, "/api.php") === 0) { include __DIR__ . "/api.php"; return; }
 $page = isset($_GET["page"]) ? $_GET["page"] : \App\Core\Router::resolve($uri);
 $isAdminPage = (substr($page,0,6) === 'admin_');
-if ($isAdminPage && !\App\Services\AuthService::isLoggedIn()) { header("Location: /login"); exit; }
+if ($isAdminPage && !\App\Services\AuthService::isLoggedIn()) { $error = "Silakan login untuk mengakses halaman admin"; $page = 'home'; }
 $error = null;
 $info = null;
 if ($page === "home" && $_SERVER["REQUEST_METHOD"] !== "POST") { include __DIR__ . "/views/prototype.php"; return; }
@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if (!$pdo) { $error = "Database is not configured"; }
         else {
             $auth = new \App\Services\AuthService();
-            if ($auth->login($pdo, $u, $p)) { header("Location: /admin"); exit; } else { $error = "Login gagal"; }
+            if ($auth->login($pdo, $u, $p)) { header("Location: /admin"); exit; } else { $error = ((int)$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn() === 0 ? 'Belum ada akun admin' : 'Username atau password salah'); }
         }
     } elseif ($csrfValid && $action === "register_admin") {
         $u = trim($_POST["username"] ?? "");

@@ -30,6 +30,14 @@ function ensureSchema($pdo) {
     } catch (Throwable $e) {}
 }
 function ensureSeed($pdo) {
+    $u = (int)$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
+    if ($u === 0) {
+        $username = (function_exists('envv') ? envv('POSY_ADMIN_USER', 'admin') : 'admin');
+        $password = (function_exists('envv') ? envv('POSY_ADMIN_PASS', '') : '');
+        if ($password === '') { $password = 'admin123'; }
+        $hp = password_hash($password, PASSWORD_DEFAULT);
+        $pdo->prepare("INSERT INTO users(username, password_hash, role) VALUES(?, ?, 'admin')")->execute([$username, $hp]);
+    }
     $c = (int)$pdo->query("SELECT COUNT(*) FROM patients")->fetchColumn();
     if ($c === 0) {
         $pdo->prepare("INSERT INTO patients(name,address,phone) VALUES(?,?,?)")->execute(["Ibu Siti Aisyah","Dusun I","08123456789"]);
