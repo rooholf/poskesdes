@@ -32,7 +32,7 @@
     </div>
     <script>
     (function(){
-      const API='api.php';
+      const API='/api.php';
       const cache={};
       function getCached(query){ const now=Date.now(); const key=query; const it=cache[key]; if(it && (now - it.ts) < 30000){ return Promise.resolve(it.data); } return fetch(API+'?'+query).then(r=>r.ok?r.json():null).then(d=>{ if(d){ cache[key]={ ts:Date.now(), data:d }; } return d; }); }
       function fmt(t){ const d=new Date(t); return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}); }

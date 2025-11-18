@@ -213,7 +213,7 @@
       const fd=new FormData(e.target);
       const tipe=fd.get('tipe');
       const action = tipe==='anc'?'anc_add':(tipe==='kb'?'kb_add':'lansia_add');
-      const url = 'api.php?action='+action;
+      const url = '/api.php?action='+action;
       const payload=new URLSearchParams();
       ['patient_id','patient_name','tanggal','jadwal_kontrol'].forEach(k=>{ const v=fd.get(k); if(v!==null) payload.append(k,String(v)); });
       if (tipe==='anc') {
