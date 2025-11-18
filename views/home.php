@@ -19,7 +19,7 @@
   <div class="col-12">
     <h2 class="h6">Agenda Terdekat</h2>
     <div class="row g-2">
-      <?php if ($pdo) { $stmt = $pdo->prepare("SELECT * FROM schedules WHERE date >= CURDATE() ORDER BY date ASC LIMIT 3"); $stmt->execute(); $rows = $stmt->fetchAll(); foreach ($rows as $r) { ?>
+      <?php if (isset($pdo) && $pdo) { $stmt = $pdo->prepare("SELECT * FROM schedules WHERE date >= CURDATE() ORDER BY date ASC LIMIT 3"); $stmt->execute(); $rows = $stmt->fetchAll(); foreach ($rows as $r) { ?>
         <div class="col-12 col-md-4">
           <div class="card">
             <div class="card-body">

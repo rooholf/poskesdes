@@ -3,11 +3,11 @@ ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Lax');
 if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) { ini_set('session.cookie_secure', '1'); }
 session_start();
-require __DIR__ . "/config.php";
-require __DIR__ . "/db.php";
-require __DIR__ . "/schema.php";
-require __DIR__ . "/auth.php";
-require __DIR__ . "/src/Autoloader.php";
+require_once __DIR__ . "/config.php";
+require_once __DIR__ . "/db.php";
+require_once __DIR__ . "/schema.php";
+require_once __DIR__ . "/auth.php";
+require_once __DIR__ . "/src/Autoloader.php";
 \App\Autoloader::register();
 \App\Services\CsrfService::ensure();
 $uri = $_SERVER["REQUEST_URI"] ?? "/";
