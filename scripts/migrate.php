@@ -1,7 +1,7 @@
 <?php
-require __DIR__ . '/../config.php';
-require __DIR__ . '/../db.php';
-require __DIR__ . '/../schema.php';
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../schema.php';
 if (!$pdo) { echo "DB not configured\n"; exit(1); }
 ensureSchema($pdo);
 ensureSeed($pdo);

@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . "/config.php";
+require_once __DIR__ . "/config.php";
 $pdo = null;
 $db_error = null;
 if ($DB_NAME !== '' && $DB_USER !== '') {
